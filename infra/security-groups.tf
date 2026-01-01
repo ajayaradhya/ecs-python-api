@@ -47,11 +47,11 @@ resource "aws_security_group" "ecs_sg" {
 }
 
 resource "aws_security_group_rule" "ecs_vpce_https_inbound" {
-  type                     = "ingress"
-  description              = "Allow ECS tasks to reach VPC endpoints on HTTPS"
-  from_port                = 443
-  to_port                  = 443
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.ecs_sg.id
-  cidr_blocks              = ["10.0.0.0/16"] # your VPC CIDR
+  type              = "ingress"
+  description       = "Allow ECS tasks to reach VPC endpoints on HTTPS"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  security_group_id = aws_security_group.ecs_sg.id
+  cidr_blocks       = ["10.0.0.0/16"] # your VPC CIDR
 }
