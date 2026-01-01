@@ -1,0 +1,33 @@
+### Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
+.crash
+override.tf
+override.tf.json
+*.terraform.lock.hcl
+
+### AWS Credentials (never commit these)
+.aws/
+credentials
+config
+
+### Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+.venv/
+
+### Docker
+*.log
+docker-compose.override.yml
+
+### OS / Editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
