@@ -12,9 +12,14 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.16",
     "axios": "^1.13.2",
+    "framer-motion": "^12.23.26",
     "react": "^19.2.0",
+    "react-circular-progressbar": "^2.2.0",
     "react-dom": "^19.2.0",
-    "recharts": "^3.6.0"
+    "react-globe.gl": "^2.37.0",
+    "react-sparklines": "^1.7.0",
+    "recharts": "^3.6.0",
+    "three": "^0.182.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
