@@ -1,6 +1,8 @@
 // src/components/NeonGlobe.tsx
 import { useEffect, useRef, useState } from "react";
 import Globe from "react-globe.gl";
+import type { GlobeMethods } from "react-globe.gl";
+
 import axios from "axios";
 
 const BASE_URL = "http://ecs-python-api-dev-alb-304493979.ap-south-2.elb.amazonaws.com";
@@ -33,7 +35,8 @@ const severityColor = (s: number) =>
 
 
 export default function NeonGlobe() {
-  const globeRef = useRef<any>(null);
+  const globeRef = useRef<GlobeMethods | null>(null);
+  const GlobeComponent = Globe as unknown as React.FC<any>;
   const [points, setPoints] = useState<CityNode[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -102,7 +105,7 @@ export default function NeonGlobe() {
     <div className="relative w-full h-105 flex items-center justify-center border border-neon bg-black/30 rounded-2xl shadow-[0_0_35px_#39ff14] overflow-hidden">
 
       {/* === Globe === */}
-      <Globe
+      <GlobeComponent
         ref={globeRef}
         width={dimensions.width}
         height={dimensions.height}
