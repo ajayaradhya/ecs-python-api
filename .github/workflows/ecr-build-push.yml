@@ -33,11 +33,51 @@ jobs:
 
       - name: Tag Docker image
         run: |
-          docker tag ${{ secrets.ECR_REPOSITORY }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+          docker tag ${{ secrets.ECR_REPOSITORY }}:latest \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
 
       - name: Push to ECR
         run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+          docker push \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
 
-      - name: Summary
-        run: echo "Image pushed successfully to ECR!"
+      # ------------------------------------------------------------------
+      # NEW SECTION → Deploy new image to ECS
+      # ------------------------------------------------------------------
+
+      - name: Register new ECS task definition revision
+        run: |
+          aws ecs register-task-definition \
+            --family ecs-python-api-dev-task \
+            --network-mode awsvpc \
+            --execution-role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecs-python-api-dev-ecs-execution-role \
+            --requires-compatibilities FARGATE \
+            --cpu 256 --memory 512 \
+            --container-definitions "[
+              {
+                \"name\": \"ecs-python-api-container\",
+                \"image\": \"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest\",
+                \"essential\": true,
+                \"portMappings\": [
+                  {\"containerPort\": 8080, \"protocol\": \"tcp\"}
+                ],
+                \"logConfiguration\": {
+                  \"logDriver\": \"awslogs\",
+                  \"options\": {
+                    \"awslogs-region\": \"${{ secrets.AWS_REGION }}\",
+                    \"awslogs-group\": \"/ecs/ecs-python-api-dev\",
+                    \"awslogs-stream-prefix\": \"ecs\"
+                  }
+                }
+              }
+            ]"
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster ecs-python-api-dev-cluster \
+            --service ecs-python-api-dev-service \
+            --force-new-deployment
+
+      - name: Deployment done
+        run: echo "🚀 ECS Deployment triggered! Check ECS console for rollout."

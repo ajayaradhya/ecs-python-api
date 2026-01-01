@@ -39,6 +39,6 @@ output "private_subnet_b" {
 # ALB DNS Output
 ##############################################
 output "alb_dns" {
-  value = aws_lb.app.dns_name
+  value       = aws_lb.app.dns_name
   description = "Public endpoint for the ECS Fargate API"
 }
