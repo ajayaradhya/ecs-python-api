@@ -1,0 +1,33 @@
+# Makefile - Terraform Control
+# Usage:
+#  make start      -> Scale ECS to 1 task
+#  make stop       -> Scale ECS to 0 tasks
+#  make plan       -> Preview changes
+#  make apply      -> Full infra apply
+#  make destroy_lb -> Destroy ALB + endpoints to reduce cost
+
+TF_VARS = -var="desired_count=$(COUNT)"
+
+plan:
+	terraform plan
+
+apply:
+	terraform apply
+
+start:
+	@echo "Scaling up to 1 task..."
+	terraform apply -var="desired_count=1" -auto-approve
+
+stop:
+	@echo "Scaling down to 0 tasks..."
+	terraform apply -var="desired_count=0" -auto-approve
+
+destroy_lb:
+	@echo "Destroying cost-heavy resources: ALB + Endpoints"
+	terraform destroy -auto-approve \
+		-target=aws_lb.app \
+		-target=aws_lb_listener.http \
+		-target=aws_lb_target_group.app_tg \
+		-target=aws_vpc_endpoint.ecr_api \
+		-target=aws_vpc_endpoint.ecr_dkr \
+		-target=aws_vpc_endpoint.s3
