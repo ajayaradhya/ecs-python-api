@@ -70,6 +70,15 @@ class WorldHeatmapResponse(BaseModel):
     heatmap: Dict[str, str]  # region -> color code
     timestamp: str
 
+class AggregationResponse(BaseModel):
+    fastest_region: str
+    slowest_region: str
+    global_average_latency: float
+    global_average_jitter: float
+    global_average_loss: float
+    regions: List[Dict[str, float]]  
+    timestamp: str
+
 # ------------------------------------------------------------------------------
 # INTERNAL SIMULATION
 # ------------------------------------------------------------------------------
@@ -128,12 +137,19 @@ def get_global_aggregations():
     fastest = min(data, key=lambda x: x.latency_ms)
     slowest = max(data, key=lambda x: x.latency_ms)
 
+    # Convert to frontend-friendly list (region + latency field only)
+    region_list = [
+        {"region": d.region, "latency_ms": d.latency_ms}
+        for d in sorted(data, key=lambda x: x.latency_ms)  # sorted fastest → slowest
+    ]
+
     return AggregationResponse(
         fastest_region=fastest.region,
         slowest_region=slowest.region,
         global_average_latency=sum(d.latency_ms for d in data) / len(data),
         global_average_jitter=sum(d.jitter_ms for d in data) / len(data),
         global_average_loss=sum(d.loss_percent for d in data) / len(data),
+        regions=region_list,  # <-- now included
         timestamp=datetime.utcnow().isoformat()
     )
 
