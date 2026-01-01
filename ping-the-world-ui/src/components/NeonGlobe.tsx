@@ -1,7 +1,6 @@
 // src/components/NeonGlobe.tsx
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Globe from "react-globe.gl";
-import type GlobeType from "react-globe.gl";
 import axios from "axios";
 
 const BASE_URL = "http://ecs-python-api-dev-alb-304493979.ap-south-2.elb.amazonaws.com";
@@ -100,7 +99,7 @@ export default function NeonGlobe() {
   };
 
   return (
-    <div className="relative w-full h-[420px] flex items-center justify-center border border-neon bg-black/30 rounded-2xl shadow-[0_0_35px_#39ff14] overflow-hidden">
+    <div className="relative w-full h-105 flex items-center justify-center border border-neon bg-black/30 rounded-2xl shadow-[0_0_35px_#39ff14] overflow-hidden">
 
       {/* === Globe === */}
       <Globe
