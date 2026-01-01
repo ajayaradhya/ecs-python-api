@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict
 from datetime import datetime
 import random
 import os
@@ -9,6 +10,21 @@ app = FastAPI(
     title="Ping-the-World API",
     version="1.0.0",
     description="Global latency simulation and metrics service for major world cities."
+)
+
+# -------- CORS CONFIG --------
+origins = [
+    "http://localhost:5173",                         # local dev UI
+    "http://ecs-python-api-dev-alb-*.elb.amazonaws.com",  # ALB wildcard
+    "*",  # optional: allow all (loose, remove in prod if needed)
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ------------------------------------------------------------------------------

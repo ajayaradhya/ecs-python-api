@@ -1,14 +1,10 @@
 import Layout from "./components/Layout";
+import Dashboard from "./Dashboard";
 
-function App() {
+export default function App() {
   return (
     <Layout>
-      <div className="panel">
-        <div className="panel-title">System Initialized</div>
-        <div className="panel-subtext">UI Theme Loaded — Ready for Components</div>
-      </div>
+      <Dashboard />
     </Layout>
   );
 }
-
-export default App;
