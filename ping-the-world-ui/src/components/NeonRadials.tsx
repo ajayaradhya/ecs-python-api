@@ -60,7 +60,7 @@ export default function NeonRadials() {
             })}
           >
             <div className="text-center font-mono">
-              <div className="text-xl" style={{ color: g.color }}>{g.value}%</div>
+              <div className="text-xl" style={{ color: g.color }}>{g.value.toFixed(1)}%</div>
               <div className="text-xs text-gray-400 tracking-widest">{g.label}</div>
             </div>
           </CircularProgressbarWithChildren>
