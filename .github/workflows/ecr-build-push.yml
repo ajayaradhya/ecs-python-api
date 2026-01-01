@@ -42,42 +42,38 @@ jobs:
           ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
 
       # ------------------------------------------------------------------
-      # NEW SECTION → Deploy new image to ECS
+      # Trigger & Validate ECS Deployment
       # ------------------------------------------------------------------
 
-      - name: Register new ECS task definition revision
-        run: |
-          aws ecs register-task-definition \
-            --family ecs-python-api-dev-task \
-            --network-mode awsvpc \
-            --execution-role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecs-python-api-dev-ecs-execution-role \
-            --requires-compatibilities FARGATE \
-            --cpu 256 --memory 512 \
-            --container-definitions "[
-              {
-                \"name\": \"ecs-python-api-container\",
-                \"image\": \"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest\",
-                \"essential\": true,
-                \"portMappings\": [
-                  {\"containerPort\": 8080, \"protocol\": \"tcp\"}
-                ],
-                \"logConfiguration\": {
-                  \"logDriver\": \"awslogs\",
-                  \"options\": {
-                    \"awslogs-region\": \"${{ secrets.AWS_REGION }}\",
-                    \"awslogs-group\": \"/ecs/ecs-python-api-dev\",
-                    \"awslogs-stream-prefix\": \"ecs\"
-                  }
-                }
-              }
-            ]"
-
-      - name: Deploy to ECS
+      - name: Force new ECS deployment using latest image
         run: |
           aws ecs update-service \
             --cluster ecs-python-api-dev-cluster \
             --service ecs-python-api-dev-service \
             --force-new-deployment
 
-      - name: Deployment done
-        run: echo "🚀 ECS Deployment triggered! Check ECS console for rollout."
+      - name: Wait for ECS to stabilize
+        run: |
+          echo "Waiting for ECS service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster ecs-python-api-dev-cluster \
+            --services ecs-python-api-dev-service
+
+      - name: Check ECS Deployment Status
+        run: |
+          STATUS=$(aws ecs describe-services \
+            --cluster ecs-python-api-dev-cluster \
+            --services ecs-python-api-dev-service \
+            --query "services[0].deployments[?status=='PRIMARY'].rolloutState" \
+            --output text)
+
+          echo "Deployment Status: $STATUS"
+
+          if [ "$STATUS" != "COMPLETED" ]; then
+            echo "❌ ECS Deployment FAILED"
+            exit 1
+          fi
+
+      - name: Deployment Successful
+        if: success()
+        run: echo "🚀 Deployment is stable and tasks are healthy!"
