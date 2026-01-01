@@ -28,28 +28,28 @@ export default function SparklineGrid() {
   if (!data) return <div className="text-neon">Loading live trends...</div>;
 
   return (
-    <div className="grid grid-cols-5 gap-4">
-      {data.data.map((city, i) => {
-        const latest = city.latency_history[city.latency_history.length - 1];
-        return (
-          <div
-            key={i}
-            className="border border-termborder bg-black/40 rounded-xl p-3 shadow-neonGlow hover:shadow-cyanGlow transition"
-          >
-            <div className="flex justify-between text-xs text-gray-400 mb-1">
-              <span>{city.region}</span>
-              <span className={getColor(latest)}>{latest} ms</span>
-            </div>
-
-            <Sparklines data={city.latency_history} margin={2}>
-              <SparklinesLine
-                style={{ strokeWidth: 3, fill: "none" }}
-                color={getColor(latest)}
-              />
-            </Sparklines>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {data.data.map((city, i) => {
+      const latest = city.latency_history[city.latency_history.length - 1];
+      return (
+        <div
+          key={i}
+          className="border border-termborder bg-black/40 rounded-xl p-3 shadow-neonGlow hover:shadow-cyanGlow transition"
+        >
+          <div className="flex justify-between text-xs text-gray-400 mb-1">
+            <span>{city.region}</span>
+            <span style={{ color: getColor(latest) }}>{latest} ms</span>
           </div>
-        );
-      })}
-    </div>
-  );
+
+          <Sparklines data={city.latency_history} margin={2}>
+            <SparklinesLine
+              style={{ strokeWidth: 3, fill: "none" }}
+              color={getColor(latest)}
+            />
+          </Sparklines>
+        </div>
+      );
+    })}
+  </div>
+);
 }
